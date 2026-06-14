@@ -1054,3 +1054,111 @@
 #sports-clip-panel .panel-body::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.3);
 }
+
+#sports-clip-panel .channel-item.disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+#sports-clip-panel .channel-hint {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 12px;
+  margin-left: 6px;
+  font-weight: normal;
+}
+
+#sports-clip-panel .clip-extras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+  align-items: center;
+}
+
+#sports-clip-panel .clip-status.audio {
+  background: rgba(255, 214, 0, 0.2);
+  color: #ffd600;
+}
+
+#sports-clip-panel .clip-status.score {
+  background: rgba(255, 170, 0, 0.2);
+  color: #ffaa00;
+}
+
+#sports-clip-panel .clip-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25) 0%, rgba(118, 75, 162, 0.25) 100%);
+  border: 1px solid rgba(102, 126, 234, 0.35);
+  border-radius: 10px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+#sports-clip-panel .mini-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#sports-clip-panel .mini-btn.disabled:hover {
+  background: rgba(255, 255, 255, 0.04);
+  transform: none;
+}
+
+#sports-clip-panel .account-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+#sports-clip-panel .account-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+}
+
+#sports-clip-panel .platform-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+}
+
+#sports-clip-panel .platform-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+#sports-clip-panel .bind-btn {
+  padding: 6px 16px;
+  background: rgba(102, 126, 234, 0.25);
+  border: 1px solid rgba(102, 126, 234, 0.5);
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+#sports-clip-panel .bind-btn:hover {
+  background: rgba(102, 126, 234, 0.4);
+}
+
+#sports-clip-panel .bind-btn.bound {
+  background: #52c41a;
+  border-color: #52c41a;
+}
+
+#sports-clip-panel .settings-section h3,
+#sports-clip-panel .data-section h3 {
+  margin-bottom: 16px;
+}
+
+#sports-clip-panel .settings-section + .settings-section {
+  margin-top: 16px;
+}

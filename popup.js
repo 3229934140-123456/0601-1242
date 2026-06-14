@@ -48,20 +48,48 @@ document.addEventListener('DOMContentLoaded', () => {
     loadStats();
   });
 
+  function applyBindButtonState(platform, bound) {
+    const btn = document.querySelector(`.bind-btn[data-platform="${platform}"]`);
+    if (!btn) return;
+    if (bound) {
+      btn.textContent = '已绑定';
+      btn.classList.add('bound');
+      btn.style.backgroundColor = '#52c41a';
+    } else {
+      btn.textContent = '绑定';
+      btn.classList.remove('bound');
+      btn.style.backgroundColor = '';
+    }
+  }
+
+  function loadBoundPlatforms() {
+    chrome.storage.local.get(['boundPlatforms'], (result) => {
+      const bound = result.boundPlatforms || [];
+      document.querySelectorAll('.bind-btn').forEach(btn => {
+        applyBindButtonState(btn.dataset.platform, bound.includes(btn.dataset.platform));
+      });
+    });
+  }
+
   document.querySelectorAll('.bind-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const platform = btn.dataset.platform;
-      if (btn.textContent === '绑定') {
-        btn.textContent = '已绑定';
-        btn.classList.add('bound');
-        btn.style.backgroundColor = '#52c41a';
-      } else {
-        btn.textContent = '绑定';
-        btn.classList.remove('bound');
-        btn.style.backgroundColor = '';
-      }
+      chrome.storage.local.get(['boundPlatforms'], (result) => {
+        let bound = result.boundPlatforms || [];
+        const idx = bound.indexOf(platform);
+        if (idx >= 0) {
+          bound.splice(idx, 1);
+          applyBindButtonState(platform, false);
+        } else {
+          bound.push(platform);
+          applyBindButtonState(platform, true);
+        }
+        chrome.storage.local.set({ boundPlatforms: bound });
+      });
     });
   });
+
+  loadBoundPlatforms();
 
   document.querySelector('.save-settings-btn').addEventListener('click', () => {
     const visibility = document.getElementById('default-visibility').value;

@@ -1,0 +1,11 @@
+{
+  "name": "sports-clip-editor",
+  "version": "1.0.0",
+  "description": "赛事解说剪辑助手 - 浏览器插件",
+  "scripts": {
+    "generate-icons": "node generate-icons.js"
+  },
+  "optionalDependencies": {
+    "canvas": "^2.11.2"
+  }
+}

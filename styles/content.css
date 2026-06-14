@@ -1162,3 +1162,241 @@
 #sports-clip-panel .settings-section + .settings-section {
   margin-top: 16px;
 }
+
+#sports-clip-panel .drafts-panel {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+}
+
+#sports-clip-panel .drafts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#sports-clip-panel .drafts-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+#sports-clip-panel .drafts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+#sports-clip-panel .draft-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+#sports-clip-panel .draft-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(102, 126, 234, 0.3);
+}
+
+#sports-clip-panel .draft-main {
+  flex: 1;
+  min-width: 0;
+}
+
+#sports-clip-panel .draft-title {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#sports-clip-panel .draft-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.45);
+  font-family: 'SF Mono', Monaco, monospace;
+}
+
+#sports-clip-panel .draft-audio {
+  color: #ffd600;
+  font-family: inherit;
+}
+
+#sports-clip-panel .draft-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.review-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 2147483648;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.review-modal {
+  width: min(640px, 100%);
+  max-height: 90vh;
+  background: #1a1a2e;
+  color: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  overflow: hidden;
+  animation: reviewFadeIn 0.25s ease;
+}
+
+@keyframes reviewFadeIn {
+  from { opacity: 0; transform: translateY(16px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #16213e 0%, #0f3460 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.review-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.review-close {
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.2s;
+}
+
+.review-close:hover {
+  background: rgba(255, 77, 79, 0.8);
+}
+
+.review-errors {
+  padding: 12px 20px;
+  background: rgba(255, 77, 79, 0.15);
+  border-bottom: 1px solid rgba(255, 77, 79, 0.25);
+  color: #ff6b6d;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.review-body {
+  padding: 16px 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.review-row {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.review-label {
+  min-width: 80px;
+  padding-top: 2px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  flex-shrink: 0;
+}
+
+.review-value {
+  flex: 1;
+  font-size: 13px;
+  color: #fff;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.review-value.review-warn {
+  color: rgba(255, 77, 79, 0.85);
+  font-style: italic;
+}
+
+.review-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.review-footer .action-btn {
+  padding: 10px 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.review-footer .action-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.review-footer .action-btn.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.review-footer .action-btn.primary:hover {
+  opacity: 0.9;
+}
+
+.review-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.review-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+.review-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}

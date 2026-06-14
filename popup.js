@@ -84,7 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
           bound.push(platform);
           applyBindButtonState(platform, true);
         }
-        chrome.storage.local.set({ boundPlatforms: bound });
+        chrome.storage.local.set({ boundPlatforms: bound }, () => {
+          chrome.tabs.query({}, (tabs) => {
+            tabs.forEach(tab => {
+              try {
+                chrome.tabs.sendMessage(tab.id, { action: 'syncBoundPlatforms' });
+              } catch (e) {}
+            });
+          });
+        });
       });
     });
   });

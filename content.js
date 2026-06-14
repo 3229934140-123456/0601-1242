@@ -102,10 +102,6 @@
     const wrap = document.createElement('div');
     wrap.style.cssText = 'max-width:960px;margin:0 auto;padding:48px 24px;';
 
-    const coverHtml = data.cover
-      ? `<img src="${data.cover}" style="width:100%;max-height:480px;object-fit:cover;border-radius:16px;margin-bottom:32px;box-shadow:0 8px 32px rgba(0,0,0,0.4);">`
-      : '';
-
     const allTags = [];
     (data.clips || []).forEach(c => { if (c.tags) c.tags.forEach(t => { if (!allTags.includes(t)) allTags.push(t); }); });
     if (data.tags) data.tags.split(/[,，]/).map(s => s.trim()).filter(Boolean).forEach(t => { if (!allTags.includes(t)) allTags.push(t); });
@@ -119,46 +115,6 @@
     const totalDur = (data.clips || []).reduce((s, c) => s + (c.endTime - c.startTime), 0);
     const hasAudio = (data.clips || []).some(c => c.audioData);
 
-    const clipsHtml = (data.clips && data.clips.length > 0)
-      ? `<div style="margin-top:32px;padding:24px;background:rgba(255,255,255,0.05);border-radius:16px;border:1px solid rgba(255,255,255,0.08);">
-           <h2 style="margin:0 0 20px 0;font-size:18px;">🎞 精彩片段 (${data.clips.length})</h2>
-           <div style="display:flex;flex-direction:column;gap:12px;">
-             ${data.clips.map((c, i) => `
-               <div style="padding:16px;background:rgba(255,255,255,0.04);border-radius:10px;border-left:3px solid #667eea;">
-                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                   <div style="font-weight:600;font-size:15px;">${i + 1}. ${escapeHtml(c.title || '未命名片段')}</div>
-                   ${c.audioData ? '<span style="font-size:12px;padding:2px 8px;background:rgba(255,214,0,0.15);border-radius:4px;color:#ffd600;">🎙 含解说</span>' : ''}
-                 </div>
-                 <div style="color:rgba(255,255,255,0.5);font-size:12px;font-family:monospace;margin-bottom:8px;">
-                   ${formatTime(c.startTime)} → ${formatTime(c.endTime)} (${Math.round(c.endTime - c.startTime)}秒)
-                 </div>
-                 ${c.scoreboard ? `<div style="display:inline-flex;align-items:center;gap:12px;padding:8px 14px;background:rgba(255,214,0,0.1);border-radius:8px;border:1px solid rgba(255,214,0,0.2);font-size:13px;">
-                   <span style="font-weight:500;">${escapeHtml(c.scoreboard.homeTeam || '主队')}</span>
-                   <span style="font-weight:700;color:#ffd600;font-size:16px;font-family:monospace;">${c.scoreboard.homeScore} : ${c.scoreboard.awayScore}</span>
-                   <span style="font-weight:500;">${escapeHtml(c.scoreboard.awayTeam || '客队')}</span>
-                 </div>` : ''}
-               </div>
-             `).join('')}
-           </div>
-         </div>`
-      : '';
-
-    const captionsHtml = (data.captions && data.captions.length > 0)
-      ? `<div style="margin-top:24px;padding:24px;background:rgba(255,255,255,0.05);border-radius:16px;border:1px solid rgba(255,255,255,0.08);">
-           <h2 style="margin:0 0 20px 0;font-size:18px;">💬 字幕 (${data.captions.length})</h2>
-           <div style="display:flex;flex-direction:column;">
-             ${data.captions.map(c => `
-               <div style="display:flex;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
-                 <div style="min-width:160px;color:#667eea;font-family:monospace;font-size:12px;flex-shrink:0;">
-                   ${formatTimeSec(c.startTime)} → ${formatTimeSec(c.endTime)}
-                 </div>
-                 <div style="flex:1;font-size:14px;line-height:1.6;">${escapeHtml(c.text || '')}</div>
-               </div>
-             `).join('')}
-           </div>
-         </div>`
-      : '';
-
     wrap.innerHTML = `
       <div style="margin-bottom:24px;">
         <div style="color:#667eea;font-size:13px;font-weight:500;margin-bottom:8px;">⚽ 赛事解说剪辑助手 · 精彩回放</div>
@@ -166,8 +122,7 @@
       </div>
       ${data.desc ? `<p style="color:rgba(255,255,255,0.65);font-size:15px;line-height:1.7;margin:0 0 8px 0;">${escapeHtml(data.desc)}</p>` : ''}
       ${tagsHtml}
-      ${coverHtml}
-      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 24px 0;">
         <div style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:rgba(102,126,234,0.15);border:1px solid rgba(102,126,234,0.3);border-radius:8px;font-size:13px;">
           🎞 片段 <b style="margin-left:4px;">${(data.clips || []).length}</b>
         </div>
@@ -181,13 +136,172 @@
           🎙 含解说音轨
         </div>` : ''}
       </div>
-      ${clipsHtml}
-      ${captionsHtml}
+
+      <div id="replay-main" style="background:rgba(255,255,255,0.05);border-radius:16px;border:1px solid rgba(255,255,255,0.08);overflow:hidden;">
+        <div id="replay-cover-area" style="width:100%;max-height:480px;overflow:hidden;background:rgba(0,0,0,0.2);">
+          ${data.cover ? `<img id="replay-cover-img" src="${data.cover}" style="width:100%;display:block;object-fit:cover;">` : `<div id="replay-cover-img" style="padding:60px 24px;text-align:center;color:rgba(255,255,255,0.35);font-size:14px;">暂无封面，点击下方片段查看片段封面</div>`}
+        </div>
+
+        <div style="padding:20px 24px;border-bottom:1px solid rgba(255,255,255,0.06);">
+          <h2 id="replay-current-title" style="margin:0 0 8px 0;font-size:18px;">${(data.clips || []).length > 0 ? escapeHtml(data.clips[0].title || '精彩片段 1') : '精彩回放'}</h2>
+          <div id="replay-current-meta" style="color:rgba(255,255,255,0.5);font-size:13px;font-family:monospace;"></div>
+        </div>
+
+        <div id="replay-current-extra" style="padding:0 24px 16px;"></div>
+
+        <div style="padding:20px 24px;border-top:1px solid rgba(255,255,255,0.06);">
+          <h3 style="margin:0 0 16px 0;font-size:15px;">💬 字幕</h3>
+          <div id="replay-captions-area" style="display:flex;flex-direction:column;"></div>
+        </div>
+
+        <div style="padding:20px 24px;background:rgba(0,0,0,0.15);border-top:1px solid rgba(255,255,255,0.06);">
+          <h3 style="margin:0 0 16px 0;font-size:15px;">🎞 片段列表（点击切换查看）</h3>
+          <div id="replay-clips-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+
       <div style="margin-top:48px;padding-top:24px;border-top:1px solid rgba(255,255,255,0.08);text-align:center;color:rgba(255,255,255,0.35);font-size:12px;">
         由「赛事解说剪辑助手」生成 · ${data.createdAt ? new Date(data.createdAt).toLocaleString() : ''}
       </div>
     `;
     document.body.appendChild(wrap);
+
+    let currentAudio = null;
+    let activeClipIdx = 0;
+    const clips = data.clips || [];
+    const allCaptions = data.captions || [];
+
+    function getClipCaptions(clip) {
+      if (!clip) return [];
+      return allCaptions.filter(c => {
+        return c.endTime >= clip.startTime && c.startTime <= clip.endTime;
+      });
+    }
+
+    function renderClip(idx) {
+      if (idx < 0 || idx >= clips.length) return;
+      activeClipIdx = idx;
+      const c = clips[idx];
+
+      const titleEl = document.getElementById('replay-current-title');
+      if (titleEl) titleEl.textContent = `${idx + 1}. ${escapeHtml(c.title || '未命名片段')}`;
+
+      const metaEl = document.getElementById('replay-current-meta');
+      if (metaEl) {
+        metaEl.innerHTML = `${formatTime(c.startTime)} → ${formatTime(c.endTime)} &nbsp;·&nbsp; ${Math.round(c.endTime - c.startTime)}秒`;
+      }
+
+      const coverArea = document.getElementById('replay-cover-img');
+      if (coverArea) {
+        if (c.cover) {
+          if (coverArea.tagName === 'IMG') {
+            coverArea.src = c.cover;
+          } else {
+            const parent = document.getElementById('replay-cover-area');
+            if (parent) {
+              parent.innerHTML = `<img id="replay-cover-img" src="${c.cover}" style="width:100%;display:block;object-fit:cover;">`;
+            }
+          }
+        } else if (!data.cover) {
+          if (coverArea.tagName !== 'IMG') {
+            coverArea.textContent = '该片段暂无封面';
+          }
+        }
+      }
+
+      const extraEl = document.getElementById('replay-current-extra');
+      if (extraEl) {
+        const parts = [];
+        if (c.scoreboard) {
+          parts.push(`<div style="display:inline-flex;align-items:center;gap:12px;padding:8px 14px;background:rgba(255,214,0,0.1);border-radius:8px;border:1px solid rgba(255,214,0,0.2);font-size:13px;margin-right:8px;">
+            <span style="font-weight:500;">${escapeHtml(c.scoreboard.homeTeam || '主队')}</span>
+            <span style="font-weight:700;color:#ffd600;font-size:16px;font-family:monospace;">${c.scoreboard.homeScore} : ${c.scoreboard.awayScore}</span>
+            <span style="font-weight:500;">${escapeHtml(c.scoreboard.awayTeam || '客队')}</span>
+          </div>`);
+        }
+        if (c.audioData) {
+          parts.push(`<button id="replay-play-audio" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">
+            ▶ 播放解说音轨
+          </button>`);
+        }
+        if ((c.tags || []).length > 0) {
+          parts.push(c.tags.map(t => `<span style="display:inline-block;padding:3px 10px;background:rgba(102,126,234,0.2);border-radius:10px;font-size:11px;margin-right:4px;">#${escapeHtml(t)}</span>`).join(''));
+        }
+        extraEl.innerHTML = parts.join('');
+
+        const playBtn = document.getElementById('replay-play-audio');
+        if (playBtn) {
+          playBtn.addEventListener('click', () => {
+            if (currentAudio && !currentAudio.paused) {
+              currentAudio.pause();
+              currentAudio = null;
+              playBtn.textContent = '▶ 播放解说音轨';
+              return;
+            }
+            const audio = new Audio(c.audioData);
+            currentAudio = audio;
+            audio.play();
+            playBtn.textContent = '⏸ 正在播放...';
+            audio.onended = () => { currentAudio = null; playBtn.textContent = '▶ 播放解说音轨'; };
+          });
+        }
+      }
+
+      const capArea = document.getElementById('replay-captions-area');
+      if (capArea) {
+        const caps = getClipCaptions(c);
+        if (caps.length === 0) {
+          capArea.innerHTML = `<div style="color:rgba(255,255,255,0.35);font-size:13px;padding:16px 0;text-align:center;">该片段暂无字幕</div>`;
+        } else {
+          capArea.innerHTML = caps.map(cap => `
+            <div style="display:flex;gap:16px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);">
+              <div style="min-width:160px;color:#667eea;font-family:monospace;font-size:12px;flex-shrink:0;">
+                ${formatTimeSec(cap.startTime)} → ${formatTimeSec(cap.endTime)}
+              </div>
+              <div style="flex:1;font-size:14px;line-height:1.6;">${escapeHtml(cap.text || '')}</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      document.querySelectorAll('#replay-clips-list .clip-card').forEach((card, i) => {
+        card.style.borderLeft = i === idx ? '3px solid #667eea' : '3px solid transparent';
+        card.style.background = i === idx ? 'rgba(102,126,234,0.12)' : 'rgba(255,255,255,0.04)';
+      });
+    }
+
+    const clipsListEl = document.getElementById('replay-clips-list');
+    if (clipsListEl) {
+      if (clips.length === 0) {
+        clipsListEl.innerHTML = `<div style="color:rgba(255,255,255,0.35);font-size:13px;padding:16px 0;text-align:center;">暂无片段</div>`;
+      } else {
+        clipsListEl.innerHTML = clips.map((c, i) => `
+          <div class="clip-card" data-idx="${i}" style="padding:12px 14px;border-radius:8px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px;border-left:3px solid transparent;background:rgba(255,255,255,0.04);">
+            <div style="width:56px;height:36px;border-radius:6px;background:rgba(0,0,0,0.3);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
+              ${c.cover ? `<img src="${c.cover}" style="width:100%;height:100%;object-fit:cover;">` : '<span style="font-size:14px;opacity:.5;">🎞</span>'}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${i + 1}. ${escapeHtml(c.title || '未命名片段')}</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.4);font-family:monospace;margin-top:2px;">${formatTime(c.startTime)} → ${formatTime(c.endTime)}</div>
+            </div>
+            <div style="display:flex;gap:4px;flex-shrink:0;">
+              ${c.audioData ? '<span style="font-size:12px;padding:2px 6px;background:rgba(255,214,0,0.15);border-radius:4px;color:#ffd600;">🎙</span>' : ''}
+              ${c.scoreboard ? '<span style="font-size:12px;padding:2px 6px;background:rgba(255,170,0,0.15);border-radius:4px;color:#ffaa00;">🏆</span>' : ''}
+            </div>
+          </div>
+        `).join('');
+
+        clipsListEl.querySelectorAll('.clip-card').forEach(card => {
+          card.addEventListener('click', () => {
+            const idx = parseInt(card.dataset.idx, 10);
+            if (currentAudio && !currentAudio.paused) { currentAudio.pause(); currentAudio = null; }
+            renderClip(idx);
+          });
+        });
+
+        if (clips.length > 0) renderClip(0);
+      }
+    }
   }
 
   function escapeHtml(s) {
@@ -417,10 +531,18 @@
           <div class="clips-header">
             <h3>精彩片段库</h3>
             <div class="clips-actions">
+              <button class="action-btn" id="btn-toggle-drafts">📝 草稿管理</button>
               <button class="action-btn" id="btn-merge-clips">🔗 合并选中</button>
               <button class="action-btn" id="btn-clear-clips">🗑 清空</button>
               <button class="action-btn" id="btn-batch-name">🏷 批量命名</button>
             </div>
+          </div>
+          <div class="drafts-panel" id="drafts-panel" style="display:none;">
+            <div class="drafts-header">
+              <h4>📋 我的草稿</h4>
+              <button class="mini-btn" id="btn-close-drafts" title="关闭">✕</button>
+            </div>
+            <div class="drafts-list" id="drafts-list"></div>
           </div>
           <div class="clips-list" id="clips-list"></div>
           <div class="scoreboard-editor" id="scoreboard-editor" style="display:none;">
@@ -492,7 +614,7 @@
           <div class="publish-actions">
             <button class="action-btn" id="btn-save-draft">💾 保存草稿</button>
             <button class="action-btn" id="btn-generate-replay">🔗 生成回放链接</button>
-            <button class="action-btn primary large" id="btn-publish">🚀 立即发布</button>
+            <button class="action-btn primary large" id="btn-publish">🚀 检查并发布</button>
           </div>
         </div>
         <div class="tab-content" id="tab-settings">
@@ -606,6 +728,8 @@
     if (el('btn-merge-clips')) el('btn-merge-clips').addEventListener('click', mergeSelectedClips);
     if (el('btn-clear-clips')) el('btn-clear-clips').addEventListener('click', clearAllClips);
     if (el('btn-batch-name')) el('btn-batch-name').addEventListener('click', batchRenameClips);
+    if (el('btn-toggle-drafts')) el('btn-toggle-drafts').addEventListener('click', toggleDraftsPanel);
+    if (el('btn-close-drafts')) el('btn-close-drafts').addEventListener('click', () => { const p = el('drafts-panel'); if (p) p.style.display = 'none'; });
 
     if (el('btn-auto-segment')) el('btn-auto-segment').addEventListener('click', autoSegmentCaptions);
     if (el('btn-add-caption')) el('btn-add-caption').addEventListener('click', addCaptionRow);
@@ -614,7 +738,7 @@
     if (el('btn-capture-cover')) el('btn-capture-cover').addEventListener('click', captureCurrentFrame);
     if (el('btn-save-draft')) el('btn-save-draft').addEventListener('click', saveDraft);
     if (el('btn-generate-replay')) el('btn-generate-replay').addEventListener('click', generateReplayLink);
-    if (el('btn-publish')) el('btn-publish').addEventListener('click', publishClip);
+    if (el('btn-publish')) el('btn-publish').addEventListener('click', showPublishReview);
 
     if (el('btn-apply-score')) el('btn-apply-score').addEventListener('click', applyScoreboard);
     if (el('btn-hide-score')) el('btn-hide-score').addEventListener('click', () => toggleEditor(null));
@@ -1241,9 +1365,213 @@
       createdAt: new Date().toISOString()
     };
     const drafts = await storageGet(STORAGE_KEYS.DRAFTS, []);
-    drafts.push(draft);
+    drafts.unshift(draft);
     await storageSet(STORAGE_KEYS.DRAFTS, drafts);
     showToast('草稿已保存', 'success');
+    renderDraftsUI();
+  }
+
+  function toggleDraftsPanel() {
+    if (!state.panelVisible) return;
+    const p = document.getElementById('drafts-panel');
+    if (!p) return;
+    if (p.style.display === 'none') {
+      p.style.display = 'block';
+      renderDraftsUI();
+    } else {
+      p.style.display = 'none';
+    }
+  }
+
+  async function renderDraftsUI() {
+    if (!state.panelVisible) return;
+    const list = document.getElementById('drafts-list');
+    if (!list) return;
+    const drafts = await storageGet(STORAGE_KEYS.DRAFTS, []);
+    if (drafts.length === 0) {
+      list.innerHTML = `<div class="empty-state" style="padding:24px;"><div class="empty-icon">📝</div><p>暂无草稿</p><p class="empty-hint">保存的草稿会出现在这里</p></div>`;
+      return;
+    }
+    list.innerHTML = drafts.map(d => {
+      const clipCount = (d.clips || []).length;
+      const hasAudio = (d.clips || []).some(c => c.audioData);
+      const dateStr = d.createdAt ? new Date(d.createdAt).toLocaleString() : '';
+      return `<div class="draft-item" data-id="${d.id}">
+        <div class="draft-main">
+          <div class="draft-title">${escapeHtml(d.title || '未命名草稿')}</div>
+          <div class="draft-meta">
+            <span>🕒 ${dateStr}</span>
+            <span>🎞 ${clipCount} 个片段</span>
+            ${hasAudio ? '<span class="draft-audio">🎙 含解说</span>' : ''}
+          </div>
+        </div>
+        <div class="draft-actions">
+          ${hasAudio ? `<button class="mini-btn" data-action="listen" data-id="${d.id}" title="试听解说">🎙</button>` : ''}
+          <button class="mini-btn" data-action="restore" data-id="${d.id}" title="恢复草稿">↩</button>
+          <button class="mini-btn" data-action="delete" data-id="${d.id}" title="删除">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    list.querySelectorAll('.draft-item').forEach(item => {
+      const id = item.dataset.id;
+      item.querySelectorAll('.mini-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const act = btn.dataset.action;
+          const drafts = await storageGet(STORAGE_KEYS.DRAFTS, []);
+          const draft = drafts.find(d => d.id === id);
+          if (!draft) return;
+          if (act === 'restore') restoreDraft(draft);
+          if (act === 'delete') {
+            if (confirm(`确定删除草稿「${draft.title || '未命名草稿'}」吗？`)) {
+              const idx = drafts.findIndex(d => d.id === id);
+              if (idx >= 0) drafts.splice(idx, 1);
+              await storageSet(STORAGE_KEYS.DRAFTS, drafts);
+              renderDraftsUI();
+              loadCacheInfoUI();
+              showToast('草稿已删除', 'success');
+            }
+          }
+          if (act === 'listen') {
+            const clipWithAudio = (draft.clips || []).find(c => c.audioData);
+            if (clipWithAudio) {
+              if (state.currentAudio && !state.currentAudio.paused) {
+                state.currentAudio.pause(); state.currentAudio = null;
+                showToast('已停止播放', 'info');
+              } else {
+                const audio = new Audio(clipWithAudio.audioData);
+                state.currentAudio = audio;
+                audio.play();
+                audio.onended = () => { state.currentAudio = null; };
+                showToast('正在播放草稿解说...', 'info');
+              }
+            }
+          }
+        });
+      });
+    });
+  }
+
+  async function restoreDraft(draft) {
+    if (!confirm(`恢复草稿「${draft.title || '未命名草稿'}」将覆盖当前面板内容，是否继续？`)) return;
+    state.clips = JSON.parse(JSON.stringify(draft.clips || []));
+    state.captions = JSON.parse(JSON.stringify(draft.captions || []));
+    await storageSet(STORAGE_KEYS.CLIPS, state.clips);
+    const ti = document.getElementById('publish-title');
+    const de = document.getElementById('publish-desc');
+    const ta = document.getElementById('publish-tags');
+    if (ti) ti.value = draft.title || '';
+    if (de) de.value = draft.desc || '';
+    if (ta) ta.value = draft.tags || '';
+    renderClipsUI();
+    renderCaptionsUI();
+    renderClipMarkersUI();
+    const dp = document.getElementById('drafts-panel');
+    if (dp) dp.style.display = 'none';
+    showToast('草稿已恢复', 'success');
+  }
+
+  function showPublishReview() {
+    if (!state.panelVisible) return;
+    const title = (document.getElementById('publish-title')?.value || '').trim();
+    const desc = document.getElementById('publish-desc')?.value || '';
+    const tags = document.getElementById('publish-tags')?.value || '';
+    const visibility = document.getElementById('publish-visibility')?.value || 'public';
+    const visibilityText = { public: '公开', private: '仅自己可见', friends: '好友可见' }[visibility] || visibility;
+
+    const sel = state.clips.filter(c => c.selected);
+    const targetClips = sel.length > 0 ? sel : state.clips;
+    const channels = $$_('#channel-grid .channel-item input:checked').map(c => c.value);
+    const boundChannels = channels.filter(k => state.boundPlatforms.includes(k));
+    const firstCover = targetClips.find(c => c.cover)?.cover || targetClips[0]?.cover || null;
+    const audioCount = targetClips.filter(c => c.audioData).length;
+    const captionCount = state.captions.length;
+
+    const errors = [];
+    if (!title) errors.push('❌ 请填写标题');
+    if (boundChannels.length === 0) errors.push('❌ 请选择已绑定的发布频道');
+    if (targetClips.length === 0) errors.push('❌ 请先添加或选中至少一个片段');
+
+    const coverHtml = firstCover
+      ? `<img src="${firstCover}" style="width:100%;max-height:180px;object-fit:cover;border-radius:8px;">`
+      : `<div style="padding:40px;text-align:center;background:rgba(0,0,0,0.2);border-radius:8px;color:rgba(255,255,255,0.4);">暂无封面</div>`;
+
+    const clipsHtml = targetClips.length > 0
+      ? targetClips.map((c, i) => `<div style="padding:8px 10px;background:rgba(255,255,255,0.04);border-radius:6px;font-size:12px;">
+          ${i + 1}. ${escapeHtml(c.title || '未命名')}
+          <span style="opacity:.5;margin-left:8px;">${formatTime(c.startTime)}→${formatTime(c.endTime)}</span>
+          ${c.audioData ? '<span style="color:#ffd600;margin-left:6px;">🎙</span>' : ''}
+        </div>`).join('')
+      : '<div style="color:rgba(255,77,79,0.8);font-size:12px;">无片段</div>';
+
+    const channelsHtml = PLATFORM_LIST.map(p => {
+      const checked = channels.includes(p.key);
+      const bound = state.boundPlatforms.includes(p.key);
+      return `<span style="display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:6px;font-size:12px;${checked && bound ? 'background:rgba(82,196,26,0.2);color:#52c41a;' : bound ? 'background:rgba(255,255,255,0.05);' : 'background:rgba(255,77,79,0.1);color:rgba(255,77,79,0.7);'}">
+        ${p.icon} ${p.name}${!bound ? ' (未绑定)' : (checked ? ' ✓' : '')}
+      </span>`;
+    }).join('');
+
+    const modal = document.createElement('div');
+    modal.className = 'review-overlay';
+    modal.innerHTML = `
+      <div class="review-modal">
+        <div class="review-header">
+          <h3>🚀 待发布确认</h3>
+          <button class="mini-btn review-close" title="关闭">✕</button>
+        </div>
+        ${errors.length > 0 ? `<div class="review-errors">${errors.join('<br>')}</div>` : ''}
+        <div class="review-body">
+          <div class="review-row">
+            <div class="review-label">标题</div>
+            <div class="review-value ${!title ? 'review-warn' : ''}">${title ? escapeHtml(title) : '<i>未填写</i>'}</div>
+          </div>
+          ${desc ? `<div class="review-row"><div class="review-label">描述</div><div class="review-value">${escapeHtml(desc)}</div></div>` : ''}
+          ${tags ? `<div class="review-row"><div class="review-label">标签</div><div class="review-value">${escapeHtml(tags)}</div></div>` : ''}
+          <div class="review-row">
+            <div class="review-label">封面</div>
+            <div class="review-value" style="flex:1;min-width:0;">${coverHtml}</div>
+          </div>
+          <div class="review-row">
+            <div class="review-label">片段 (${targetClips.length})</div>
+            <div class="review-value" style="flex:1;display:flex;flex-direction:column;gap:4px;">${clipsHtml}</div>
+          </div>
+          <div class="review-row">
+            <div class="review-label">附加内容</div>
+            <div class="review-value">
+              <span style="display:inline-block;padding:2px 8px;background:rgba(102,126,234,0.2);border-radius:4px;font-size:12px;">💬 字幕 ${captionCount} 条</span>
+              <span style="display:inline-block;padding:2px 8px;background:rgba(255,214,0,0.2);border-radius:4px;font-size:12px;margin-left:6px;">🎙 解说 ${audioCount} 段</span>
+            </div>
+          </div>
+          <div class="review-row">
+            <div class="review-label">发布频道</div>
+            <div class="review-value" style="display:flex;flex-wrap:wrap;gap:6px;">${channelsHtml}</div>
+          </div>
+          <div class="review-row">
+            <div class="review-label">可见范围</div>
+            <div class="review-value">${visibilityText}</div>
+          </div>
+        </div>
+        <div class="review-footer">
+          <button class="action-btn review-cancel">取消</button>
+          <button class="action-btn primary large review-confirm" ${errors.length > 0 ? 'disabled style="opacity:.4;cursor:not-allowed;"' : ''}>确认发布</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    modal.querySelector('.review-close').addEventListener('click', () => modal.remove());
+    modal.querySelector('.review-cancel').addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+
+    const confirmBtn = modal.querySelector('.review-confirm');
+    if (confirmBtn && errors.length === 0) {
+      confirmBtn.addEventListener('click', () => {
+        modal.remove();
+        publishClip();
+      });
+    }
   }
 
   async function generateReplayLink() {
@@ -1375,6 +1703,13 @@
 
   chrome.runtime.onMessage.addListener((msg) => {
     if (msg.action === 'togglePanel') togglePanel();
+    if (msg.action === 'syncBoundPlatforms') {
+      storageGet(STORAGE_KEYS.BOUND, []).then((bound) => {
+        state.boundPlatforms = bound || [];
+        applyChannelState();
+        renderAccountListUI();
+      });
+    }
   });
 
   init();
